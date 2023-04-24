@@ -1,18 +1,17 @@
-from pysondb import getDb
+from pysondb import db
 from uuid import uuid4
+
+from server import merchant_table
 
 
 def addNewMerchant(merchantName, merchantUrl):
-    merchantDb = getDb('db/merchant.json')
-    accountId = str(uuid4())
-    merchantId = str(uuid4())
-    apiKey = str(uuid4())
+    merchants = db.getDb(merchant_table)
     newMerchant = {
-        "accountId": accountId,
-        "merchantId": merchantId,
+        "accountId": str(uuid4()),
+        "merchantId": str(uuid4()),
         "merchantName": merchantName,
         "merchantUrl": merchantUrl,
-        "apiKey": apiKey
+        "apiKey": str(uuid4())
     }
-    merchantDb.add(newMerchant)
+    merchants.add(newMerchant)
     return newMerchant
