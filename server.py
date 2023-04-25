@@ -2,13 +2,13 @@ from email.message import EmailMessage
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from entities.Accounts import Accounts
-from service import merchantService, accountServices
+from service import MerchantService, AccountServices
 from pysondb import db
 import os
 import re
 import json
 
-from service.accountServices import accounts_table, add_topup_account
+from service.AccountServices import accounts_table, add_topup_account
 
 
 def _parse_header(content_type):
