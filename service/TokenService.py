@@ -13,7 +13,7 @@ def generate_token(account_id, account_type):
     payload = {'accountId': account_id, 'accountType': account_type, 'exp': int(time.time()) + token_expiration_time}
 
     # Set the token expiration time (1 hour from now)
-    print("payload:" , payload)
+    print("payload:", payload)
 
     # Generate the token using the JWT library
     token = jwt.encode(payload, secret_key, algorithm='HS256')
@@ -21,3 +21,16 @@ def generate_token(account_id, account_type):
     # Return the token as a string
     return token.encode('utf-8').decode('ascii')
 
+
+def verify_token(token, accountId):
+    try:
+        decoded_token = jwt.decode(token, secret_key, algorithms=['HS256'])
+        if decoded_token['accountId'] == accountId:
+            return decoded_token
+        return None
+    except jwt.ExpiredSignatureError:
+        # Handle case where token has expired
+        return None
+    except jwt.InvalidTokenError:
+        # Handle case where token is invalid or malformed
+        return None

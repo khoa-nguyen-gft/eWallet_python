@@ -1,6 +1,6 @@
 from pysondb import db
 from entities import Accounts
-from service.GenerateTokenService import generate_token
+from service.TokenService import generate_token, verify_token
 
 accounts_table = 'db/accounts.json'
 
@@ -13,6 +13,7 @@ def save_account(account: Accounts) -> Accounts:
         "account_name": account.account_name,
         "balance": account.balance,
         "account_type": account.account_type,
+        'url': account.url
     }
 
     accounts.add(entity)
@@ -32,3 +33,16 @@ def generate_account_token(accountId: str) -> str:
     else:
         # Account not found
         print("Account not found: ", accountId)
+
+
+def add_topup_account(accountId, token, amount):
+    decoded_token = verify_token(token, accountId)
+    if decoded_token is not None:
+        # TODO process business logic
+        print("decoded_token:", decoded_token)
+        print("accountId:", accountId)
+        print("amount:", amount)
+
+        return accountId
+    else:
+        return None

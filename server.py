@@ -8,8 +8,7 @@ import os
 import re
 import json
 
-from service.accountServices import accounts_table
-from service.merchantService import merchant_table
+from service.accountServices import accounts_table, add_topup_account
 
 
 def _parse_header(content_type):
@@ -20,45 +19,47 @@ def _parse_header(content_type):
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        path_parts = self.path.split('/')
-
-        if self.path == '/hello':
+        print("Get path: ", self.path)
+        if self.path.startswith('/hello'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             message = {'message': 'Hello, world!'}
             self.wfile.write(json.dumps(message).encode())
 
-        elif path_parts[1] == 'account' and path_parts[3] == 'token':
-            account_id = path_parts[2]
-            print("account_id:", account_id)
+        if self.path.startswith('/account/'):
+            path_parts = self.path.split('/')
+            if path_parts[1] == 'account' and path_parts[3] == 'token':
+                account_id = path_parts[2]
+                print("account_id:", account_id)
 
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
 
-            token = accountServices.generate_account_token(account_id)
-            if token != None:
-                # Construct the response JSON and send it back to the client
-                response = {
-                    'accountId': account_id,
-                    'token': token
-                }
-                self.wfile.write(json.dumps(response).encode())
+                token = accountServices.generate_account_token(account_id)
+                if token != None:
+                    # Construct the response JSON and send it back to the client
+                    response = {
+                        'accountId': account_id,
+                        'token': token
+                    }
+                    self.wfile.write(json.dumps(response).encode())
+                else:
+                    self.send_response(404)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    message = {'message': 'Not Found'}
+                    self.wfile.write(json.dumps(message).encode())
             else:
                 self.send_response(404)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 message = {'message': 'Not Found'}
                 self.wfile.write(json.dumps(message).encode())
-        else:
-            self.send_response(404)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            message = {'message': 'Not Found'}
-            self.wfile.write(json.dumps(message).encode())
 
     def do_POST(self):
+        print("Post path: ", self.path)
         if re.search('/merchant/signup/*', self.path):
             if self.headers.get('content-type') == 'application/json':
                 length = int(self.headers.get('content-length'))
@@ -74,8 +75,40 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             else:
                 self.send_response(400, "Bad Request: invalid data")
                 self.end_headers()
+        if self.path.startswith('/account/'):
+            path_parts = self.path.split('/')
+            if path_parts[1] == 'account' and path_parts[3] == 'topup':
+                if self.headers.get('content-type') == 'application/json':
+                    account_id = path_parts[2]
+                    auth_token = self.headers.get('Authentication')
 
-        if re.search('/account', self.path):
+                    if auth_token is None:
+                        self.send_response(400, "Bad Request: invalid data")
+                        self.end_headers()
+                        response_body = json.dumps({"message": "Account is not Authentication"})
+                        self.wfile.write(response_body.encode('utf-8'))
+                        return
+
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    jsonObj = json.loads(self.rfile.read(content_length))
+
+                    result = add_topup_account(account_id, auth_token, jsonObj['amount'])
+                    if result is None:
+                        self.send_response(400, "Bad Request: invalid data")
+                        self.end_headers()
+                        response_body = json.dumps({"message": "Account is not Authentication"})
+                        self.wfile.write(response_body.encode('utf-8'))
+                        return
+
+                    # Validate payload schema using the TopupRequest definition
+                    # Return a successful response
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    response_body = json.dumps({"message": "Account top-up successful"})
+                    self.wfile.write(response_body.encode('utf-8'))
+
+        if self.path == '/account':
             if self.headers.get('content-type') == 'application/json':
                 length = int(self.headers.get('content-length'))
                 bodyStr = self.rfile.read(length).decode('utf8')
@@ -100,8 +133,6 @@ def main():
 
 
 def initDataBase():
-    if not os.path.exists(merchant_table):
-        db.getDb(merchant_table)
     if not os.path.exists(accounts_table):
         db.getDb(accounts_table)
 

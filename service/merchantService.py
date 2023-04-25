@@ -1,17 +1,6 @@
-from pysondb import db
-from uuid import uuid4
-
-merchant_table = 'db/merchant.json'
+from entities.Accounts import Accounts, AccountType
+from service.accountServices import save_account
 
 
 def addNewMerchant(merchantName, merchantUrl):
-    merchants = db.getDb(merchant_table)
-    newMerchant = {
-        "accountId": str(uuid4()),
-        "merchantId": str(uuid4()),
-        "merchantName": merchantName,
-        "merchantUrl": merchantUrl,
-        "apiKey": str(uuid4())
-    }
-    merchants.add(newMerchant)
-    return newMerchant
+    return save_account(Accounts(merchantName, AccountType.MERCHANT, 0, merchantUrl))
