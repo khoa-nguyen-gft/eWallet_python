@@ -1,48 +1,37 @@
-from pysondb import db
+import decimal
+
 from entities import Accounts
+from repository.AccountRepository import save, get_by_id, get_by_id_and_account_type, update
 from service.TokenService import generate_token, verify_token
 
 accounts_table = 'db/accounts.json'
 
 
 def save_account(account: Accounts) -> Accounts:
-    accounts = db.getDb(accounts_table)
-
-    entity = {
-        "account_id": account.account_id,
-        "account_name": account.account_name,
-        "balance": account.balance,
-        "account_type": account.account_type,
-        'url': account.url
-    }
-
-    accounts.add(entity)
-    return entity
+    return save(account)
 
 
 def generate_account_token(accountId: str) -> str:
-    accounts = db.getDb(accounts_table)
+    account = get_by_id(accountId)
 
-    # Loop through the accounts in the database
-    print(accounts.getAll())
-    for account in accounts.getAll():
-        # Check if the account ID matches
-        if account.get('account_id') == accountId:
-            # Found the account, do something with it
-            return generate_token(account.get('account_id'), account.get('account_type'))
+    if account is not None:
+        return generate_token(account.get('account_id'), account.get('account_type'))
     else:
         # Account not found
         print("Account not found: ", accountId)
 
 
 def add_topup_account(accountId, token, amount):
-    decoded_token = verify_token(token, accountId)
-    if decoded_token is not None:
-        # TODO process business logic
-        print("decoded_token:", decoded_token)
-        print("accountId:", accountId)
-        print("amount:", amount)
+    decoded_token = verify_token(token)
+    print("decoded_token: ", decoded_token)
 
-        return accountId
+    # check the token is the issue banking
+    bankIssue = get_by_id_and_account_type(decoded_token['accountId'], Accounts.AccountType.ISSUER)
+    if bankIssue is not None:
+        person = get_by_id(accountId)
+        if person is not None:
+            person['balance'] = float(decimal.Decimal(person['balance']) + decimal.Decimal(amount))
+            print("person:", person)
+            return update(person)
     else:
         return None

@@ -22,12 +22,9 @@ def generate_token(account_id, account_type):
     return token.encode('utf-8').decode('ascii')
 
 
-def verify_token(token, accountId):
+def verify_token(token):
     try:
-        decoded_token = jwt.decode(token, secret_key, algorithms=['HS256'])
-        if decoded_token['accountId'] == accountId:
-            return decoded_token
-        return None
+        return jwt.decode(token, secret_key, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         # Handle case where token has expired
         return None

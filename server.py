@@ -38,7 +38,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
 
                 token = accountServices.generate_account_token(account_id)
-                if token != None:
+                if token is not None:
                     # Construct the response JSON and send it back to the client
                     response = {
                         'accountId': account_id,
@@ -93,20 +93,18 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     jsonObj = json.loads(self.rfile.read(content_length))
 
                     result = add_topup_account(account_id, auth_token, jsonObj['amount'])
+                    jsonStr = json.dumps(result)
+
+                    print("result", result)
                     if result is None:
-                        self.send_response(400, "Bad Request: invalid data")
-                        self.end_headers()
-                        response_body = json.dumps({"message": "Account is not Authentication"})
-                        self.wfile.write(response_body.encode('utf-8'))
-                        return
+                        return self.ErrorUnAuthentication()
 
                     # Validate payload schema using the TopupRequest definition
                     # Return a successful response
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    response_body = json.dumps({"message": "Account top-up successful"})
-                    self.wfile.write(response_body.encode('utf-8'))
+                    self.wfile.write(jsonStr.encode(encoding='utf_8'))
 
         if self.path == '/account':
             if self.headers.get('content-type') == 'application/json':
@@ -123,6 +121,19 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             else:
                 self.send_response(400, "Bad Request: invalid data")
                 self.end_headers()
+
+        if self.path.startswith('/transaction/create'):
+            length = int(self.headers.get('content-length'))
+            bodyStr = self.rfile.read(length).decode('utf8')
+            jsonObj = json.loads(bodyStr)
+            print("Body content: ", jsonObj)
+
+    def ErrorUnAuthentication(self):
+        self.send_response(400, "Bad Request: invalid data")
+        self.end_headers()
+        response_body = json.dumps({"message": "Account is not Authentication"})
+        self.wfile.write(response_body.encode('utf-8'))
+        return
 
 
 def main():
