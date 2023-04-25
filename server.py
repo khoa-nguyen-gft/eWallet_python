@@ -1,14 +1,13 @@
+from service.AccountServices import accounts_table, add_topup_account, generate_account_token, save_account
+from service.MerchantService import addNewMerchant
 from email.message import EmailMessage
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from entities.Accounts import Accounts
-from service import MerchantService, AccountServices
 from pysondb import db
 import os
 import re
 import json
-
-from service.AccountServices import accounts_table, add_topup_account
 
 
 def _parse_header(content_type):
@@ -37,7 +36,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
 
-                token = accountServices.generate_account_token(account_id)
+                token = generate_account_token(account_id)
                 if token is not None:
                     # Construct the response JSON and send it back to the client
                     response = {
@@ -66,7 +65,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 bodyStr = self.rfile.read(length).decode('utf8')
                 jsonObj = json.loads(bodyStr)
                 print("Body content: ", jsonObj)
-                newMerchant = merchantService.addNewMerchant(jsonObj["merchantName"], jsonObj["merchantUrl"])
+                newMerchant = addNewMerchant(jsonObj["merchantName"], jsonObj["merchantUrl"])
                 jsonStr = json.dumps(newMerchant)
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -112,7 +111,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 bodyStr = self.rfile.read(length).decode('utf8')
                 jsonObj = json.loads(bodyStr)
                 print("Body content: ", jsonObj)
-                account = accountServices.save_account(Accounts(jsonObj["accountName"], jsonObj["accountType"]))
+                account = save_account(Accounts(jsonObj["accountName"], jsonObj["accountType"]))
                 jsonStr = json.dumps(account)
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
