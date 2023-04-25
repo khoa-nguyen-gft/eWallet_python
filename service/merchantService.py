@@ -1,7 +1,7 @@
 from pysondb import db
 from uuid import uuid4
 
-from server import merchant_table
+merchant_table = 'db/merchant.json'
 
 
 def addNewMerchant(merchantName, merchantUrl):

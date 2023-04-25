@@ -1,12 +1,15 @@
 from email.message import EmailMessage
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from service import merchantService
+
+from entities.Accounts import Accounts
+from service import merchantService, accountServices
 from pysondb import db
 import os
 import re
 import json
 
-merchant_table = 'db/merchant.json'
+from service.accountServices import accounts_table
+from service.merchantService import merchant_table
 
 
 def _parse_header(content_type):
@@ -17,12 +20,37 @@ def _parse_header(content_type):
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        path_parts = self.path.split('/')
+
         if self.path == '/hello':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             message = {'message': 'Hello, world!'}
             self.wfile.write(json.dumps(message).encode())
+
+        elif path_parts[1] == 'account' and path_parts[3] == 'token':
+            account_id = path_parts[2]
+            print("account_id:", account_id)
+
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+
+            token = accountServices.generate_account_token(account_id)
+            if token != None:
+                # Construct the response JSON and send it back to the client
+                response = {
+                    'accountId': account_id,
+                    'token': token
+                }
+                self.wfile.write(json.dumps(response).encode())
+            else:
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                message = {'message': 'Not Found'}
+                self.wfile.write(json.dumps(message).encode())
         else:
             self.send_response(404)
             self.send_header('Content-type', 'application/json')
@@ -47,6 +75,22 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(400, "Bad Request: invalid data")
                 self.end_headers()
 
+        if re.search('/account', self.path):
+            if self.headers.get('content-type') == 'application/json':
+                length = int(self.headers.get('content-length'))
+                bodyStr = self.rfile.read(length).decode('utf8')
+                jsonObj = json.loads(bodyStr)
+                print("Body content: ", jsonObj)
+                account = accountServices.save_account(Accounts(jsonObj["accountName"], jsonObj["accountType"]))
+                jsonStr = json.dumps(account)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(jsonStr.encode(encoding='utf_8'))
+            else:
+                self.send_response(400, "Bad Request: invalid data")
+                self.end_headers()
+
 
 def main():
     initDataBase()
@@ -58,6 +102,8 @@ def main():
 def initDataBase():
     if not os.path.exists(merchant_table):
         db.getDb(merchant_table)
+    if not os.path.exists(accounts_table):
+        db.getDb(accounts_table)
 
 
 if __name__ == '__main__':
