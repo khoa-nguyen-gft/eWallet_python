@@ -2,6 +2,8 @@ import time
 
 import jwt
 
+from repository.AccountRepository import get_by_id_and_account_type
+
 # Define the secret key and token expiration time
 secret_key = 'mysecretkey'
 token_expiration_time = 3600  # in seconds
@@ -31,3 +33,11 @@ def verify_token(token):
     except jwt.InvalidTokenError:
         # Handle case where token is invalid or malformed
         return None
+
+
+def verify_token_and_account_type(token, accountType):
+    decoded_token = verify_token(token)
+    print("decoded_token: ", decoded_token)
+
+    # check the token is the issue banking
+    return get_by_id_and_account_type(decoded_token['accountId'], accountType)
