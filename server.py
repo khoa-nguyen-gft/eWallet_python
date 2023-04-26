@@ -4,6 +4,8 @@ import os
 import re
 from email.message import EmailMessage
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
+from time import sleep
 
 from pysondb import db
 
@@ -13,6 +15,7 @@ from service.AccountServices import (
     generate_account_token,
     save_account,
 )
+from service.BatchJobServices import start_batch_job
 from service.MerchantService import addNewMerchant
 from service.TransactionService import (
     cancel_transaction,
@@ -187,7 +190,20 @@ def main():
     initDataBase()
     server = HTTPServer(("localhost", 8080), HTTPRequestHandler)
     print('HTTP Server Running...........')
-    server.serve_forever()
+
+    # Start the HTTP server in a separate thread
+    server_thread = Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+
+    # Start the batch job in a separate thread
+    batch_job_thread = Thread(target=start_batch_job)
+    batch_job_thread.daemon = True
+    batch_job_thread.start()
+
+    # Keep the main thread alive to allow other threads to run
+    while True:
+        sleep(1)
 
 
 def initDataBase():

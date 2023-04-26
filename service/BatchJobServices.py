@@ -1,5 +1,5 @@
-import time
 import datetime
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 
 def batch_job():
@@ -8,9 +8,11 @@ def batch_job():
 
 
 def start_batch_job():
-    # run the batch job
-    print("Start batch job..........")
-    batch_job()
+    # Create a scheduler object
+    scheduler = BlockingScheduler()
 
-    # wait for 5 minutes before running the batch job again
-    time.sleep(60)
+    # Define the job to run the update_database() function every 24 hours
+    scheduler.add_job(batch_job, 'interval', seconds=1)
+
+    # Start the scheduler
+    scheduler.start()
