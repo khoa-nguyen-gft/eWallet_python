@@ -21,7 +21,7 @@ def create_transaction(auth_token, transactionCreateRequest):
     if merchant is not None:
         merchant = getAccountById(merchant["account_id"])
         transactionItem = intTransactionEntity(merchant['account_id'], transactionCreateRequest)
-        return saveTransaction(transactionItem)
+        return {"transaction": saveTransaction(transactionItem), "incomeAccount": merchant, "outcomeAccount": None}
     return None
 
 
@@ -32,16 +32,18 @@ def confirm_transaction(auth_token, transaction_id):
     if personal is not None:
         personalId = personal["account_id"]
         transactionContent = getTransactionById(transaction_id)
+        account = getAccountById(personalId)
+        incomeAccount = getAccountById(transactionContent["income_account"])
         transactionStatus = transactionContent["status"]
 
         if transactionStatus == TransactionType.CONFIRMED:
             print("This transaction is confirmed....")
-            return transactionContent
+            return {"transaction": transactionContent, "incomeAccount": incomeAccount, "outcomeAccount": account}
 
         if transactionStatus == TransactionType.INITIALIZED:
             transaction = updateConfirmedStatusByTransactionId(transaction_id, personalId)
             print("verify transaction: ", transaction)
-            return transaction
+            return {"transaction": transaction, "incomeAccount": incomeAccount, "outcomeAccount": account}
 
     return updateFailedStatusByTransactionId(transaction_id, personal["account_id"])
 
@@ -57,18 +59,24 @@ def verify_transaction(auth_token, transaction_id):
         personalContent = getAccountById(personalId)
         transactionContent = getTransactionById(transaction_id)
         transactionStatus = transactionContent["status"]
+        merchantContent = getAccountById(transactionContent["income_account"])
 
-        if transactionStatus == TransactionType.VERIFIED:
+        if transactionStatus == TransactionType.VERIFIED or transactionStatus == TransactionType.COMPLETED:
             print("This transaction is verified....")
-            return transactionContent
+            return {"transaction": transactionContent, "incomeAccount": merchantContent, "outcomeAccount": personalContent}
 
-        net = float(personalContent["balance"]) - float(transactionContent["amount"]) - float(personalContent["credit"])
+        net = float(personalContent["balance"]) - float(transactionContent["amount"])
         if net > 0 and transactionStatus == TransactionType.CONFIRMED:
-            personalContent["credit"] = float(personalContent["credit"]) + float(transactionContent["amount"])
+            personalContent["balance"] = float(personalContent["balance"]) - float(transactionContent["amount"])
+            print("personalContent", personalContent)
             updateAccount(personalContent)
-            transaction = updateVerifiedStatusByTransactionId(transaction_id, personalId)
+
+            merchantContent["balance"] = merchantContent["balance"] + float(transactionContent["amount"])
+            print("merchantContent", merchantContent)
+            updateAccount(merchantContent)
+            transaction = updateCompletedStatusByTransactionId(transaction_id, personalId)
             print("verify transaction: ", transaction)
-            return transaction
+            return {"transaction": transaction, "incomeAccount": merchantContent, "outcomeAccount": personalContent}
 
     return updateFailedStatusByTransactionId(transaction_id, personalId)
 
@@ -86,8 +94,8 @@ def updateVerifiedStatusByTransactionId(transaction_id, personalId):
     return updateStatusByTransactionId(transaction_id, TransactionType.VERIFIED, personalId)
 
 
-def updateCompletedStatusByTransactionId(transaction_id):
-    return updateStatusByTransactionId(transaction_id, TransactionType.COMPLETED)
+def updateCompletedStatusByTransactionId(transaction_id, personalId):
+    return updateStatusByTransactionId(transaction_id, TransactionType.COMPLETED, personalId)
 
 
 def updateCanceledStatusByTransactionId(transaction_id):

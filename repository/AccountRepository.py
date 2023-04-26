@@ -11,7 +11,6 @@ def saveAccount(account: Accounts) -> Accounts:
         "account_id": account.account_id,
         "account_name": account.account_name,
         "balance": account.balance,
-        "credit": "0",
         "account_type": account.account_type,
         'url': account.url
     }
@@ -21,6 +20,7 @@ def saveAccount(account: Accounts) -> Accounts:
 
 def updateAccount(account):
     accounts = db.getDb(accounts_table)
+    print("account: ", account)
     accounts.updateById(account["id"], account)
     return account
 
