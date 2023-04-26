@@ -35,9 +35,8 @@ def verify_token(token):
         return None
 
 
-def verify_token_and_account_type(token, accountType):
+def get_account_by_token_and_type(token: str, account_type: str) -> dict:
     decoded_token = verify_token(token)
-    print("decoded_token: ", decoded_token)
-
-    # check the token is the issue banking
-    return get_by_id_and_account_type(decoded_token['accountId'], accountType)
+    print("decoded_token: ", decoded_token, "token: ", token)
+    if decoded_token is not None:
+        return get_by_id_and_account_type(decoded_token['accountId'], account_type)
