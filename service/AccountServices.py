@@ -2,7 +2,7 @@ import decimal
 
 from entities import Accounts
 from repository.AccountRepository import save, get_by_id, update
-from service.TokenService import generate_token, get_account_by_token_and_type
+from service.TokenService import generate_token, get_issue_account_by_token
 
 accounts_table = 'db/accounts.json'
 
@@ -23,7 +23,7 @@ def generate_account_token(accountId: str) -> str:
 
 def add_topup_account(accountId, token, amount):
     # check the token is the issue banking
-    bankIssue = get_account_by_token_and_type(token, Accounts.AccountType.ISSUER)
+    bankIssue = get_issue_account_by_token(token)
     if bankIssue is not None:
         person = get_by_id(accountId)
         if person is not None:

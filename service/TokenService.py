@@ -2,6 +2,7 @@ import time
 
 import jwt
 
+from entities.Accounts import AccountType
 from repository.AccountRepository import get_by_id_and_account_type
 
 # Define the secret key and token expiration time
@@ -33,6 +34,18 @@ def verify_token(token):
     except jwt.InvalidTokenError:
         # Handle case where token is invalid or malformed
         return None
+
+
+def get_issue_account_by_token(token: str) -> dict:
+    return get_account_by_token_and_type(token, AccountType.ISSUER)
+
+
+def get_merchant_account_by_token(token: str) -> dict:
+    return get_account_by_token_and_type(token, AccountType.MERCHANT)
+
+
+def get_personal_account_by_token(token: str) -> dict:
+    return get_account_by_token_and_type(token, AccountType.PERSONAL)
 
 
 def get_account_by_token_and_type(token: str, account_type: str) -> dict:

@@ -3,28 +3,16 @@ from pysondb import db
 transaction_table = 'db/transactions.json'
 
 
-def save(transaction):
+def save(entity):
     transactions = db.getDb(transaction_table)
-
-    entity = {
-        "transaction_id": str(transaction.transactionId),
-        "merchant_id": transaction.merchantId,
-        "income_account": transaction.incomeAccount,
-        "outcome_account": transaction.outcomeAccount,
-        "amount": transaction.amount,
-        "extra_data": transaction.extraData,
-        "signature": transaction.signature,
-        "status": transaction.status
-    }
-
     transactions.add(entity)
     return entity
 
 
-def update(transaction):
+def update(entity):
     transactions = db.getDb(transaction_table)
-    transactions.updateById(transaction["id"], transaction)
-    return transaction
+    transactions.updateById(entity["id"], entity)
+    return entity
 
 
 def get_all():
