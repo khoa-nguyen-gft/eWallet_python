@@ -32,8 +32,14 @@ def confirm_transaction(auth_token, transaction_id):
     personal = getPersonalAccountByToken(auth_token)
     print("personal: ", personal)
     print("confirm the transaction_id: ", transaction_id)
+    incomeAccount = None
+    account = None
+
     if personal is not None:
+        print("start process confirm")
+
         personalId = personal["account_id"]
+        personalContent = getAccountById(personalId)
         transactionContent = getTransactionById(transaction_id)
         account = getAccountById(personalId)
         incomeAccount = getAccountById(transactionContent["income_account"])
@@ -43,22 +49,30 @@ def confirm_transaction(auth_token, transaction_id):
             print("This transaction is confirmed....")
             return {"transaction": transactionContent, "incomeAccount": incomeAccount, "outcomeAccount": account}
 
-        if transactionStatus == TransactionType.INITIALIZED:
+        # verify the person have enough the money to pay
+        net = float(personalContent["balance"]) - float(transactionContent["amount"])
+        if net > 0 and transactionStatus == TransactionType.INITIALIZED:
             transaction = updateConfirmedStatusByTransactionId(transaction_id, personalId)
             print("verify transaction: ", transaction)
             return {"transaction": transaction, "incomeAccount": incomeAccount, "outcomeAccount": account}
 
-    return updateFailedStatusByTransactionId(transaction_id, personal["account_id"])
+    return {"transaction": updateFailedStatusByTransactionId(transaction_id, personal["account_id"]),
+            "incomeAccount": incomeAccount,
+            "outcomeAccount": account
+            }
 
 
 def verify_transaction(auth_token, transaction_id):
     personal = getPersonalAccountByToken(auth_token)
-    personalId = personal["account_id"]
 
     print("personal: ", personal)
     print("verify the transaction_id: ", transaction_id)
+    merchantContent = None
+    personalContent = None
+    personalId = None
 
     if personal is not None:
+        personalId = personal["account_id"]
         personalContent = getAccountById(personalId)
         transactionContent = getTransactionById(transaction_id)
         transactionStatus = transactionContent["status"]
@@ -81,7 +95,10 @@ def verify_transaction(auth_token, transaction_id):
             print("verify transaction: ", transaction)
             return {"transaction": transaction, "incomeAccount": merchantContent, "outcomeAccount": personalContent}
 
-    return updateFailedStatusByTransactionId(transaction_id, personalId)
+    return {"transaction": updateFailedStatusByTransactionId(transaction_id, personalId),
+            "incomeAccount": merchantContent,
+            "outcomeAccount": personalContent
+            }
 
 
 def cancel_transaction(auth_token, transaction_id):
@@ -105,7 +122,10 @@ def cancel_transaction(auth_token, transaction_id):
             print("cancel transaction: ", transaction)
             return {"transaction": transaction, "incomeAccount": incomeAccount, "outcomeAccount": account}
 
-    return updateFailedStatusByTransactionId(transaction_id, personal["account_id"])
+    return {"transaction": updateFailedStatusByTransactionId(transaction_id, personal["account_id"]),
+            "incomeAccount": incomeAccount,
+            "outcomeAccount": account
+            }
 
 
 def updateConfirmedStatusByTransactionId(transaction_id, personalId):
