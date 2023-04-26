@@ -81,9 +81,28 @@ def verify_transaction(auth_token, transaction_id):
     return updateFailedStatusByTransactionId(transaction_id, personalId)
 
 
-def cancel_transaction(auth_token, transactionConfirmRequest):
-    print("cancel transaction")
-    return "cancel transaction"
+def cancel_transaction(auth_token, transaction_id):
+    personal = getPersonalAccountByToken(auth_token)
+    print("personal: ", personal)
+    print("confirm the transaction_id: ", transaction_id)
+
+    if personal is not None:
+        personalId = personal["account_id"]
+        transactionContent = getTransactionById(transaction_id)
+        account = getAccountById(personalId)
+        incomeAccount = getAccountById(transactionContent["income_account"])
+        transactionStatus = transactionContent["status"]
+
+        if transactionStatus == TransactionType.CANCELED:
+            print("This transaction is Canceled....")
+            return {"transaction": transactionContent, "incomeAccount": incomeAccount, "outcomeAccount": account}
+
+        if transactionStatus == TransactionType.CONFIRMED:
+            transaction = updateCanceledStatusByTransactionId(transaction_id, personalId)
+            print("cancel transaction: ", transaction)
+            return {"transaction": transaction, "incomeAccount": incomeAccount, "outcomeAccount": account}
+
+    return updateFailedStatusByTransactionId(transaction_id, personal["account_id"])
 
 
 def updateConfirmedStatusByTransactionId(transaction_id, personalId):
@@ -98,8 +117,8 @@ def updateCompletedStatusByTransactionId(transaction_id, personalId):
     return updateStatusByTransactionId(transaction_id, TransactionType.COMPLETED, personalId)
 
 
-def updateCanceledStatusByTransactionId(transaction_id):
-    return updateStatusByTransactionId(transaction_id, TransactionType.CANCELED)
+def updateCanceledStatusByTransactionId(transaction_id, personalId):
+    return updateStatusByTransactionId(transaction_id, TransactionType.CANCELED, personalId)
 
 
 def updateExpiredStatusByTransactionId(transaction_id):
