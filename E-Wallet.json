@@ -1,0 +1,395 @@
+{
+	"info": {
+		"_postman_id": "820ba613-f905-4682-99f6-7d34a38acb37",
+		"name": "E-Wallet",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "436970"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/hello",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/hello",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"hello"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/merchant/signup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchantName\": \"kiot\",\n    \"merchantUrl\": \"http://localhost:8080\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/merchant/signup/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"merchant",
+						"signup",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountName\": \"acocunt2\",\n    \"accountType\": \"personal\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/account",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account issue",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountName\": \"bank\",\n    \"accountType\": \"issuer\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/account",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account/{accountId}/token-Issue",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/account/6ad68f44-c25f-4ba2-80f2-c1e4e1766d01/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account",
+						"6ad68f44-c25f-4ba2-80f2-c1e4e1766d01",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account/{accountId}/token-merchant",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/account/840706bd-2aac-4d49-88ec-01ae584d4c8a/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account",
+						"840706bd-2aac-4d49-88ec-01ae584d4c8a",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account/{accountId}/token-person",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/account/7e9a1b77-1351-4488-9355-e88e7f61c1b6/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account",
+						"7e9a1b77-1351-4488-9355-e88e7f61c1b6",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account/{accountId}/topup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiIwNTUzN2U2Zi0zMjQ0LTQ4ZWYtYmY0My0yZGM5ZWRmYzJjYWMiLCJhY2NvdW50VHlwZSI6Imlzc3VlciIsImV4cCI6MTY4MjUwMjc1NX0.Z8NZ14HEyFOjX19jFK2-_3AZx5n4H_f4AVHaPL_2Qc4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountId\": \"6f97247a-6b1f-4446-a122-1bd738df3a25\",\n    \"amount\": \"100.1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/account/6f97247a-6b1f-4446-a122-1bd738df3a25/topup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"account",
+						"6f97247a-6b1f-4446-a122-1bd738df3a25",
+						"topup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "01-/transaction/create-with-merchantId",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI4NDA3MDZiZC0yYWFjLTRkNDktODhlYy0wMWFlNTg0ZDRjOGEiLCJhY2NvdW50VHlwZSI6Im1lcmNoYW50IiwiZXhwIjoxNjgyNTExODYwfQ.D8FFIcgu8Lq-rDz2k-3XuXkrq8dWqKtwZTG6KeqdIiI",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchantId\": \"b5fba1ea-ecb3-453b-a12e-704e308b3c44\",\n    \"amount\": \"20\",\n    \"extraData\": \"extraData\",\n    \"signature\": \"signature\"\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/transaction/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"transaction",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02-/transaction/confirm by personId",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI3ZTlhMWI3Ny0xMzUxLTQ0ODgtOTM1NS1lODhlN2Y2MWMxYjYiLCJhY2NvdW50VHlwZSI6InBlcnNvbmFsIiwiZXhwIjoxNjgyNTExOTA2fQ.iP0FsqZirXvwEDuld4077IRiUcb4VmPaHRvyKt5AZsI",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactionId\": \"53298652-593d-4e47-82be-9cc6285ffae7\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/transaction/confirm",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"transaction",
+						"confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03-/transaction/verify-with-personId",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI3ZTlhMWI3Ny0xMzUxLTQ0ODgtOTM1NS1lODhlN2Y2MWMxYjYiLCJhY2NvdW50VHlwZSI6InBlcnNvbmFsIiwiZXhwIjoxNjgyNTExOTA2fQ.iP0FsqZirXvwEDuld4077IRiUcb4VmPaHRvyKt5AZsI",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactionId\": \"53298652-593d-4e47-82be-9cc6285ffae7\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/transaction/verify",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"transaction",
+						"verify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03-/transaction/cancel-with-personId",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI2Zjk3MjQ3YS02YjFmLTQ0NDYtYTEyMi0xYmQ3MzhkZjNhMjUiLCJhY2NvdW50VHlwZSI6InBlcnNvbmFsIiwiZXhwIjoxNjgyNTAzMTMzfQ.MWHK7mBFq4wIxmJXMGoyWjI0WaM-cdA0HrRHtyRN398",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactionId\": \"f1ec5118-a968-4c2a-ad46-caed250d6dbb\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/transaction/cancel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"transaction",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/transaction/cancel",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiJlZTBiYjgzYy1mNDhiLTQ5YzYtODk3Yy05YjJjMWVmODQyMzIiLCJhY2NvdW50VHlwZSI6Imlzc3VlIiwiZXhwIjoxNjgyNDExMTU5fQ.-Az-sdK87fWM-28n0SWItBekl0Cb22wJ7H_2X9GPZmc",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/transaction/expired",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"transaction",
+						"expired"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
