@@ -30,7 +30,7 @@ sẽ có signature là: 225744eba143248ae232bf81d6366b66
 
 **Wallet File Postman**
 [Wallet.postman_collection.json](E-Wallet.json)
-![](./E-Wallet-postman.png)
+![](./E-Wallet-postman.jpg)
 
 
 
