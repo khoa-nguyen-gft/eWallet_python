@@ -1,4 +1,3 @@
-
 from entities.Transaction import (
     intTransactionEntity,
     TransactionType
@@ -22,34 +21,56 @@ def create_transaction(auth_token, transactionCreateRequest):
     if merchant is not None:
         merchant = getAccountById(merchant["account_id"])
         transactionItem = intTransactionEntity(merchant['account_id'], transactionCreateRequest)
-        print("transactionItem: ", transactionItem)
         return saveTransaction(transactionItem)
     return None
 
 
-def verify_transaction(auth_token, transaction_id):
+def confirm_transaction(auth_token, transaction_id):
     personal = getPersonalAccountByToken(auth_token)
     print("personal: ", personal)
-    print("verify the transaction_id: ", transaction_id)
+    print("confirm the transaction_id: ", transaction_id)
     if personal is not None:
         personalId = personal["account_id"]
-        personalContent = getAccountById(personalId)
         transactionContent = getTransactionById(transaction_id)
+        transactionStatus = transactionContent["status"]
 
-        net = float(personalContent["balance"]) - float(transactionContent["amount"]) - float(personalContent["credit"])
-        if net > 0:
-            personalContent["credit"] = float(personalContent["credit"]) + float(transactionContent["amount"])
-            updateAccount(personalContent)
-            transaction = updateConfirmedStatusByTransactionId(transaction_id, personal["account_id"])
+        if transactionStatus == TransactionType.CONFIRMED:
+            print("This transaction is confirmed....")
+            return transactionContent
+
+        if transactionStatus == TransactionType.INITIALIZED:
+            transaction = updateConfirmedStatusByTransactionId(transaction_id, personalId)
             print("verify transaction: ", transaction)
             return transaction
 
     return updateFailedStatusByTransactionId(transaction_id, personal["account_id"])
 
 
-def confirm_transaction(auth_token, transactionConfirmRequest):
-    print("confirm transaction")
-    return "confirm transaction"
+def verify_transaction(auth_token, transaction_id):
+    personal = getPersonalAccountByToken(auth_token)
+    personalId = personal["account_id"]
+
+    print("personal: ", personal)
+    print("verify the transaction_id: ", transaction_id)
+
+    if personal is not None:
+        personalContent = getAccountById(personalId)
+        transactionContent = getTransactionById(transaction_id)
+        transactionStatus = transactionContent["status"]
+
+        if transactionStatus == TransactionType.VERIFIED:
+            print("This transaction is verified....")
+            return transactionContent
+
+        net = float(personalContent["balance"]) - float(transactionContent["amount"]) - float(personalContent["credit"])
+        if net > 0 and transactionStatus == TransactionType.CONFIRMED:
+            personalContent["credit"] = float(personalContent["credit"]) + float(transactionContent["amount"])
+            updateAccount(personalContent)
+            transaction = updateVerifiedStatusByTransactionId(transaction_id, personalId)
+            print("verify transaction: ", transaction)
+            return transaction
+
+    return updateFailedStatusByTransactionId(transaction_id, personalId)
 
 
 def cancel_transaction(auth_token, transactionConfirmRequest):
@@ -58,11 +79,11 @@ def cancel_transaction(auth_token, transactionConfirmRequest):
 
 
 def updateConfirmedStatusByTransactionId(transaction_id, personalId):
+    return updateStatusByTransactionId(transaction_id, TransactionType.CONFIRMED, personalId)
+
+
+def updateVerifiedStatusByTransactionId(transaction_id, personalId):
     return updateStatusByTransactionId(transaction_id, TransactionType.VERIFIED, personalId)
-
-
-def updateVerifiedStatusByTransactionId(transaction_id):
-    return updateStatusByTransactionId(transaction_id, TransactionType.VERIFIED)
 
 
 def updateCompletedStatusByTransactionId(transaction_id):
@@ -81,7 +102,7 @@ def updateFailedStatusByTransactionId(transaction_id, personalId):
     return updateStatusByTransactionId(transaction_id, TransactionType.FAILED, personalId)
 
 
-def updateStatusByTransactionId(transaction_id, status, personalId = None):
+def updateStatusByTransactionId(transaction_id, status, personalId=None):
     entity = getTransactionById(transaction_id)
     entity["status"] = status
     if personalId is not None:
