@@ -1,4 +1,6 @@
+import os
 import uuid
+from datetime import datetime
 
 
 class TransactionType:
@@ -13,6 +15,9 @@ class TransactionType:
 
 def intTransactionEntity(merchantId, request) -> dict:
     print("init request: ", request)
+    # get the creation time of the repository
+    now = datetime.now()
+
     return {
         "transaction_id": str(uuid.uuid4()),
         "merchant_id": merchantId,
@@ -21,5 +26,7 @@ def intTransactionEntity(merchantId, request) -> dict:
         "amount": request["amount"],
         "extra_data": request["extraData"],
         "signature": request["signature"],
-        "status": TransactionType.INITIALIZED
+        "status": TransactionType.INITIALIZED,
+        "created_date": str(now),
+        "update_date": str(now)
     }

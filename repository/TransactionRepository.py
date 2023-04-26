@@ -3,24 +3,24 @@ from pysondb import db
 transaction_table = 'db/transactions.json'
 
 
-def save(entity):
+def saveTransaction(entity):
     transactions = db.getDb(transaction_table)
     transactions.add(entity)
     return entity
 
 
-def update(entity):
+def updateTransaction(entity):
     transactions = db.getDb(transaction_table)
     transactions.updateById(entity["id"], entity)
     return entity
 
 
-def get_all():
+def getTransactionAll():
     accounts = db.getDb(transaction_table)
     return accounts.getAll()
 
 
-def get_by_id(transactionId: str):
+def getTransactionById(transactionId: str):
     transactions = db.getDb(transaction_table)
 
     for transaction in transactions.getAll():
@@ -30,3 +30,4 @@ def get_by_id(transactionId: str):
             return transaction
     else:
         return None
+

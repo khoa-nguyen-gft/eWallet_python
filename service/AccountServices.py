@@ -1,21 +1,28 @@
 import decimal
 
 from entities import Accounts
-from repository.AccountRepository import save, get_by_id, update
-from service.TokenService import generate_token, get_issue_account_by_token
+from repository.AccountRepository import (
+    saveAccount,
+    getAccountById,
+    updateAccount
+)
+from service.TokenService import (
+    generateToken,
+    getIssueAccountByToken
+)
 
 accounts_table = 'db/accounts.json'
 
 
 def save_account(account: Accounts) -> Accounts:
-    return save(account)
+    return saveAccount(account)
 
 
 def generate_account_token(accountId: str) -> str:
-    account = get_by_id(accountId)
+    account = getAccountById(accountId)
 
     if account is not None:
-        return generate_token(account.get('account_id'), account.get('account_type'))
+        return generateToken(account.get('account_id'), account.get('account_type'))
     else:
         # Account not found
         print("Account not found: ", accountId)
@@ -23,12 +30,12 @@ def generate_account_token(accountId: str) -> str:
 
 def add_topup_account(accountId, token, amount):
     # check the token is the issue banking
-    bankIssue = get_issue_account_by_token(token)
+    bankIssue = getIssueAccountByToken(token)
     if bankIssue is not None:
-        person = get_by_id(accountId)
+        person = getAccountById(accountId)
         if person is not None:
             person['balance'] = float(decimal.Decimal(person['balance']) + decimal.Decimal(amount))
             print("person:", person)
-            return update(person)
+            return updateAccount(person)
     else:
         return None

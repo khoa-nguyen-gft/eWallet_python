@@ -3,7 +3,7 @@ import time
 import jwt
 
 from entities.Accounts import AccountType
-from repository.AccountRepository import get_by_id_and_account_type
+from repository.AccountRepository import getAccountByIdAndAccountType
 
 # Define the secret key and token expiration time
 secret_key = 'mysecretkey'
@@ -11,7 +11,7 @@ token_expiration_time = 3600  # in seconds
 
 
 # Function to generate a token
-def generate_token(account_id, account_type):
+def generateToken(account_id, account_type):
     # Define the payload for the token
     payload = {'accountId': account_id, 'accountType': account_type, 'exp': int(time.time()) + token_expiration_time}
 
@@ -25,7 +25,7 @@ def generate_token(account_id, account_type):
     return token.encode('utf-8').decode('ascii')
 
 
-def verify_token(token):
+def verifyToken(token):
     try:
         return jwt.decode(token, secret_key, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
@@ -36,20 +36,20 @@ def verify_token(token):
         return None
 
 
-def get_issue_account_by_token(token: str) -> dict:
-    return get_account_by_token_and_type(token, AccountType.ISSUER)
+def getIssueAccountByToken(token: str) -> dict:
+    return getAccountByTokenAndType(token, AccountType.ISSUER)
 
 
-def get_merchant_account_by_token(token: str) -> dict:
-    return get_account_by_token_and_type(token, AccountType.MERCHANT)
+def getMerchantAccountByToken(token: str) -> dict:
+    return getAccountByTokenAndType(token, AccountType.MERCHANT)
 
 
-def get_personal_account_by_token(token: str) -> dict:
-    return get_account_by_token_and_type(token, AccountType.PERSONAL)
+def getPersonalAccountByToken(token: str) -> dict:
+    return getAccountByTokenAndType(token, AccountType.PERSONAL)
 
 
-def get_account_by_token_and_type(token: str, account_type: str) -> dict:
-    decoded_token = verify_token(token)
+def getAccountByTokenAndType(token: str, account_type: str) -> dict:
+    decoded_token = verifyToken(token)
     print("decoded_token: ", decoded_token, "token: ", token)
     if decoded_token is not None:
-        return get_by_id_and_account_type(decoded_token['accountId'], account_type)
+        return getAccountByIdAndAccountType(decoded_token['accountId'], account_type)

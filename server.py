@@ -18,9 +18,9 @@ from service.TransactionService import (
     cancel_transaction,
     confirm_transaction,
     create_transaction,
+    verify_transaction,
 )
 from entities.Accounts import Accounts
-
 
 
 def _parse_header(content_type):
@@ -146,16 +146,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             result = None
 
             if path_parts[2] == 'create':
+                print("start processing create transaction: ", jsonStr)
                 result = create_transaction(auth_token, jsonStr)
-
-            elif path_parts[2] == 'confirm':
-                result = confirm_transaction(auth_token, jsonStr)
 
             elif path_parts[2] == 'verify':
-                result = create_transaction(auth_token, jsonStr)
+                print("start processing verify  transaction: ", jsonStr)
+                result = verify_transaction(auth_token, jsonStr['transactionId'])
+
+            elif path_parts[2] == 'confirm':
+                print("start processing confirm transaction: ", jsonStr)
+                result = confirm_transaction(auth_token, jsonStr['transactionId'])
 
             elif path_parts[2] == 'cancel':
-                result = cancel_transaction(auth_token, jsonStr)
+                print("start processing cancel transaction: ", jsonStr)
+                result = cancel_transaction(auth_token,  jsonStr['transactionId'])
 
             print("result", result)
             if result is None:
