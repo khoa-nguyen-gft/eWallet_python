@@ -9,6 +9,8 @@ import os
 import re
 import json
 
+from service.TransactionService import create_transaction, cancel_transaction, confirm_transaction
+
 
 def _parse_header(content_type):
     m = EmailMessage()
@@ -82,10 +84,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     auth_token = self.headers.get('Authentication')
 
                     if auth_token is None:
-                        self.send_response(400, "Bad Request: invalid data")
-                        self.end_headers()
-                        response_body = json.dumps({"message": "Account is not Authentication"})
-                        self.wfile.write(response_body.encode('utf-8'))
+                        self.authTokenResponse()
                         return
 
                     content_length = int(self.headers.get('Content-Length', 0))
@@ -120,18 +119,49 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             else:
                 self.send_response(400, "Bad Request: invalid data")
                 self.end_headers()
+        if self.path.startswith('/transaction'):
+            path_parts = self.path.split('/')
 
-        if self.path.startswith('/transaction/create'):
-            length = int(self.headers.get('content-length'))
-            bodyStr = self.rfile.read(length).decode('utf8')
-            jsonObj = json.loads(bodyStr)
-            print("Body content: ", jsonObj)
+            auth_token = self.headers.get('Authentication')
 
-    def ErrorUnAuthentication(self):
+            if auth_token is None:
+                self.authTokenResponse()
+                return
+            content_length = int(self.headers.get('Content-Length', 0))
+            jsonStr = json.loads(self.rfile.read(content_length))
+            result = None
+
+            if path_parts[2] == 'create':
+                result = create_transaction(auth_token, jsonStr)
+
+            elif path_parts[2] == 'confirm':
+                result = confirm_transaction(auth_token, jsonStr)
+
+            elif path_parts[2] == 'verify':
+                result = create_transaction(auth_token, jsonStr)
+
+            elif path_parts [2] == 'cancel':
+                result = cancel_transaction(auth_token, jsonStr)
+
+            print("result", result)
+            if result is None:
+                return self.ErrorUnAuthentication()
+
+            # Validate payload schema using the TopupRequest definition
+            # Return a successful response
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write("passed".encode(encoding='utf_8'))
+
+    def authTokenResponse(self):
         self.send_response(400, "Bad Request: invalid data")
         self.end_headers()
         response_body = json.dumps({"message": "Account is not Authentication"})
-        self.wfile.write(response_body.encode('utf-8'))
+        self.wfile.write(response_body.encode('utvf-8'))
+
+    def ErrorUnAuthentication(self):
+        self.authTokenResponse()
         return
 
 
