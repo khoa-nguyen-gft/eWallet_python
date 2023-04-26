@@ -16,7 +16,7 @@ def start_batch_job():
     scheduler = BlockingScheduler()
 
     # Define the job to run the update_database() function every 24 hours
-    scheduler.add_job(batch_job, 'interval', seconds=5)
+    scheduler.add_job(batch_job, 'interval', seconds=6*60)
 
     # Start the scheduler
     scheduler.start()

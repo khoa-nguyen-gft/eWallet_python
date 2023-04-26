@@ -28,6 +28,12 @@ sẽ có signature là: 225744eba143248ae232bf81d6366b66
 
 **ExtraData** : ExtraData có thể là bất cứ thứ gì do hệ thống merchant định nghĩa. Mỗi khi e-Wallet update thông tin thay đổi transaction thì cần gửi kèm thông tin extraData. Dữ liệu này không có ý nghĩa trong hệ thống của e-Wallet, tuy nhiên sẽ có ý nghĩa ở hệ thống của merchant. Ví dụ: nếu merchant thêm thông tin orderId vào extraData, e-Wallet sẽ không hiểu orderId này là gì cả, tuy nhiên khi e-Wallet gửi thông tin transaction về cho Merchant, merchant sẽ đọc và biết transaction này đang sử lý cho orderId nào để có thể cập nhật trạng thái chính xác đến order đó.
 
+**Wallet File Postman**
+[Wallet.postman_collection.json](E-Wallet.json)
+![](./E-Wallet-postman.png)
+
+
+
 **Transaction Flow**
 
 ![](./transaction.jpg)
@@ -39,3 +45,5 @@ sẽ có signature là: 225744eba143248ae232bf81d6366b66
 **Transaction Life Circle**
 
 ![](./transactionLifeCircle.jpg)
+
+

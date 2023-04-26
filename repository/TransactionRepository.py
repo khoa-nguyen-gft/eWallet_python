@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pysondb import db
 
 transaction_table = 'db/transactions.json'
@@ -11,6 +13,7 @@ def saveTransaction(entity):
 
 def updateTransaction(entity):
     transactions = db.getDb(transaction_table)
+    entity["update_date"] = str(datetime.now())
     transactions.updateById(entity["id"], entity)
     return entity
 
