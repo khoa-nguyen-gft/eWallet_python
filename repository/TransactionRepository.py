@@ -31,3 +31,11 @@ def getTransactionById(transactionId: str):
     else:
         return None
 
+
+def getTransactionByIdAndListStatus(listStatus):
+    result = []
+    transactions = db.getDb(transaction_table)
+    for transaction in transactions.getAll():
+        if transaction.get("status") in listStatus:
+            result.append(transaction)
+    return result

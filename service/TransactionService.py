@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from entities.Transaction import (
     intTransactionEntity,
     TransactionType
@@ -6,7 +8,8 @@ from repository.AccountRepository import getAccountById, updateAccount
 from repository.TransactionRepository import (
     getTransactionById,
     saveTransaction,
-    updateTransaction
+    updateTransaction,
+    getTransactionByIdAndListStatus
 )
 from service.TokenService import (
     getMerchantAccountByToken,
@@ -121,8 +124,16 @@ def updateCanceledStatusByTransactionId(transaction_id, personalId):
     return updateStatusByTransactionId(transaction_id, TransactionType.CANCELED, personalId)
 
 
-def updateExpiredStatusByTransactionId(transaction_id):
-    return updateStatusByTransactionId(transaction_id, TransactionType.EXPIRED)
+def updateExpiredStatusByTransactionId():
+    listTransaction = getTransactionByIdAndListStatus([TransactionType.INITIALIZED, TransactionType.CONFIRMED, TransactionType.VERIFIED])
+    for transaction in listTransaction:
+        updateTimeTransaction = datetime.strptime( transaction["update_date"], '%Y-%m-%d %H:%M:%S.%f').timestamp()
+        now = datetime.now(timezone.utc).timestamp()
+
+        if now - updateTimeTransaction >= 5:
+            transaction["status"] = TransactionType.EXPIRED
+            updateTransaction(transaction)
+    return listTransaction
 
 
 def updateFailedStatusByTransactionId(transaction_id, personalId):

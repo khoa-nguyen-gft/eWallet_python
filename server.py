@@ -22,6 +22,7 @@ from service.TransactionService import (
     confirm_transaction,
     create_transaction,
     verify_transaction,
+    updateExpiredStatusByTransactionId,
 )
 from entities.Accounts import Accounts
 
@@ -69,6 +70,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 message = {"message": "Not Found"}
                 self.wfile.write(json.dumps(message).encode())
+
+        if self.path.startswith("/transaction/expired"):
+            result = updateExpiredStatusByTransactionId()
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
 
     def do_POST(self):
         logging.info(f"POST path: {self.path}")
